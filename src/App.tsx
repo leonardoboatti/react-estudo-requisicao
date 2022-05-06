@@ -1,45 +1,49 @@
-import { useState } from 'react'
-import logo from './logo.svg'
-import './App.css'
+import { useState, useEffect } from "react";
+import {Post} from './types/Post';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>Hello Vite + React!</p>
-        <p>
-          <button type="button" onClick={() => setCount((count) => count + 1)}>
-            count is: {count}
-          </button>
-        </p>
-        <p>
-          Edit <code>App.tsx</code> and save to test HMR updates.
-        </p>
-        <p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-          {' | '}
-          <a
-            className="App-link"
-            href="https://vitejs.dev/guide/features.html"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Vite Docs
-          </a>
-        </p>
-      </header>
-    </div>
-  )
+  useEffect(() => {
+    loadPosts();
+  }, []);
+
+  const loadPosts = async () => {
+    let response = await fetch('https://jsonplaceholder.typicode.com/posts');
+    let json = await response.json();
+    setPosts(json);
+  }
+
+
+ return(
+  
+   <div className="p-5"> 
+
+    {loading &&
+      <div>Carregando...</div>
+    }
+
+    {!loading && posts.length > 0 &&
+      <>
+        <div>Total de posts: {posts.length}</div>    
+        <div>
+          {posts.map((item, index) =>(
+            <div key={index} className="my-4">
+              <h4 className="font-bold">{item.title}</h4>
+              <small>#{item.id} - Usuário: {item.userId}</small>
+              <p>{item.body}</p>
+            </div>
+          ))}
+        </div>
+      </>
+    }
+
+    {!loading && posts.length === 0 &&
+      <div>Não há posts para exibir.</div>
+    }
+   </div>
+  );
 }
 
 export default App
